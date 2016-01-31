@@ -1,0 +1,93 @@
+﻿@model SkyTechTest.Models.PersonIndexViewModel
+
+@{
+    ViewBag.Title = "View";
+}
+
+
+<script>
+    $(function () {
+
+        // use requirejs to load modules and resolve dependencies
+        function PersonIndexViewModel() {
+            var self = this;
+
+            self.loadList = function () {
+                $.ajax({
+                    url: "GetList",
+                    method: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (result) {
+                        $.each(result, function (index, item) {
+                            self.people.push(new PersonViewModel(item))
+                        });
+                    },
+                    error: function (request) {
+                        alert('Something really bad happened')
+                    }
+                });
+            }
+
+            self.saveList = function () {
+
+                var theData = ko.toJSON(self);
+
+                $.ajax({
+                    url: "SaveList",
+                    method: "POST",
+                    data: theData,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (result) {
+                        alert('All good');
+                    },
+                    error: function (request) {
+                        alert('Something really bad happened')
+                    }
+                });
+            }
+
+            self.people = ko.observableArray();
+
+        }
+
+        function PersonViewModel(data)
+        {
+            var self = this;
+            self.id = ko.observable(data.Id);
+            self.firstname = ko.observable(data.Firstname);
+            self.surname = ko.observable(data.Surname);
+        }
+
+
+        var model = new PersonIndexViewModel();
+        model.loadList();
+        ko.applyBindings(model);
+    });
+
+</script>
+<h2>People</h2>
+
+<table>
+    <thead>
+        <tr>
+            <td>Staff id</td>
+            <td>First name</td>
+            <td>Surname</td>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: people">
+        <tr>
+            <td><input data-bind="value: id" /></td>
+            <td><input data-bind="value: firstname" /></td>
+            <td><input data-bind="value: surname" /></td>
+        </tr>
+    </tbody>
+</table>
+
+<br />
+<br />
+<input type="button" value="Submit" data-bind="click: $data.saveList" />
+
+
+
+
